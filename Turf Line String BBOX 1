@@ -1,0 +1,168 @@
+const startPoint = turf.point([8.324230387,50.64707732]); // Example coordinates for San Francisco, CA
+const roadBearing = 341; // Example bearing in degrees
+const distance =  250 // 500 meters in kilometers
+
+const destinationPoint = turf.destination(startPoint, distance, roadBearing, { units: 'meters' });
+const linestring       = turf.lineString([startPoint.geometry.coordinates, destinationPoint.geometry.coordinates]);
+
+const boundingBox = turf.bbox(linestring);
+console.log(boundingBox)
+const bufferedBoundingBox = turf.buffer(linestring, 1500, { units: 'meters' });
+
+
+
+return turf.featureCollection([bufferedBoundingBox,linestring,startPoint]);
+//return boundingBox
+
+const roadNetwork = 
+{
+  type: "FeatureCollection",
+  features: 
+  [
+       {
+      "type": "Feature",
+      "id": "urn:here::here:Topology:159198840",
+      "geometry": 
+      {
+        "type": "LineString",
+        "coordinates": 
+        [
+          [
+            8.32444,
+            50.64633,
+            265.53
+          ],
+          [
+            8.32413,
+            50.64693,
+            266.95
+          ],
+          [
+            8.32409,
+            50.64701,
+            267.13
+          ],
+          [
+            8.3238,
+            50.64751,
+            268.18
+          ],
+          [
+            8.32363,
+            50.64779,
+            268.72
+          ],
+          [
+            8.32328,
+            50.64835,
+            269.72
+          ],
+          [
+            8.32291,
+            50.64892,
+            270.67
+          ],
+          [
+            8.32252,
+            50.6495,
+            271.62
+          ],
+          [
+            8.32214,
+            50.65008,
+            272.45
+          ],
+          [
+            8.32197,
+            50.65038,
+            272.75
+          ]
+        ]
+      }
+    }
+  ],
+};
+
+const gpsTrack = 
+       {
+      "type": "Feature",
+      "id": "urn:here::here:Topology:159198840",
+      "geometry": 
+      {
+        "type": "LineString",
+        "coordinates": 
+        [
+          [
+            8.32444,
+            50.64633,
+            265.53
+          ],
+          [
+            8.32413,
+            50.64693,
+            266.95
+          ],
+          [
+            8.32409,
+            50.64701,
+            267.13
+          ],
+          [
+            8.3238,
+            50.64751,
+            268.18
+          ],
+          [
+            8.32363,
+            50.64779,
+            268.72
+          ],
+          [
+            8.32328,
+            50.64835,
+            269.72
+          ],
+          [
+            8.32291,
+            50.64892,
+            270.67
+          ],
+          [
+            8.32252,
+            50.6495,
+            271.62
+          ],
+          [
+            8.32214,
+            50.65008,
+            272.45
+          ],
+          [
+            8.32197,
+            50.65038,
+            272.75
+          ]
+        ]
+      }
+    }
+
+// Function to match GPS track to the road network
+function matchToRoad(linestring, roadNetwork) {
+  const snappedPoints = gpsTrack.geometry.coordinates.map((point) => {
+    const nearestPoint = turf.nearestPointOnLine(roadNetwork, point);
+    return nearestPoint.geometry.coordinates;
+  });
+
+  return {
+    type: "Feature",
+    properties: {},
+    geometry: {
+      type: "LineString",
+      coordinates: snappedPoints,
+    },
+  };
+}
+
+const matchedTrack = matchToRoad(gpsTrack, roadNetwork);
+return matchedTrack
+
