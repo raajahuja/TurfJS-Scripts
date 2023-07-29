@@ -1,0 +1,43 @@
+
+
+// Function to generate a bounding box for a LineString with a specified width
+function lineStringBoundingBox(lineString, widthMeters) {
+  // Buffer the LineString to create a polygon with the specified width
+  const bufferedLineString = turf.buffer(lineString, widthMeters / 1000, { units: 'kilometers' });
+
+  // Calculate the bounding box of the buffered LineString (Polygon)
+  const bbox = turf.bbox(bufferedLineString);
+
+  return {
+    type: 'Feature',
+    properties: {},
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [bbox[0], bbox[1]],
+          [bbox[0], bbox[3]],
+          [bbox[2], bbox[3]],
+          [bbox[2], bbox[1]],
+          [bbox[0], bbox[1]],
+        ],
+      ],
+    },
+  };
+}
+
+
+const startPoint = turf.point([8.324230387,50.64707732]); // Example coordinates for San Francisco, CA
+const roadBearing = 341; // Example bearing in degrees
+const distance =  0.250 // 500 meters in kilometers
+
+const destinationPoint = turf.destination(startPoint, distance, roadBearing, { units: 'kilometers' });
+const linestring       = turf.lineString([startPoint.geometry.coordinates, destinationPoint.geometry.coordinates]);
+
+
+const widthMeters = 250; // The desired width of the bounding box in meters
+
+const boundingBox = lineStringBoundingBox(linestring, widthMeters);
+console.log('Bounding Box for LineString:', boundingBox.geometry);
+return turf.featureCollection([boundingBox,linestring,startPoint]);
+
